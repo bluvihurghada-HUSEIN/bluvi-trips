@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLUVI Trips | Diving, Snorkeling & PADI Courses in Hurghada</title>
+  <meta name="description" content="BLUVI Trips — Daily Diving, Giftun & Orange Bay Snorkeling Trips, and PADI Certified Diving Courses in Hurghada, Red Sea. Take Memories, Leave Bubbles." />
+  <link rel="canonical" href="https://bluvihurghada.com/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="brand-wrap" onclick="showView('home', 'all')">
+      <svg width="54" height="54" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" aria-label="BLUVI Trips Logo">
+        <defs>
+          <linearGradient id="bluviGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#00A8B5"/>
+          </linearGradient>
+          <path id="bottomArcNav" d="M 32,132 A 88,88 0 0,0 208,132" />
+        </defs>
+        <circle cx="120" cy="120" r="114" fill="#061E34" stroke="#00A8B5" stroke-width="4"/>
+        <circle cx="120" cy="120" r="105" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.7"/>
+        <path d="M120 30 L125 55 L150 60 L125 65 L120 90 L115 65 L90 60 L115 55 Z" fill="none" stroke="#38BDF8" stroke-width="1.8"/>
+        <path d="M68 86 L152 86 L172 74 L132 74 L122 64 L92 64 L82 74 L68 74 Z" fill="url(#bluviGrad)"/>
+        <path d="M55 96 Q90 88 120 96 T185 96" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="182" cy="70" r="3" fill="#38BDF8"/>
+        <circle cx="189" cy="60" r="4" fill="#00A8B5"/>
+        <text x="120" y="136" text-anchor="middle" fill="url(#bluviGrad)" font-size="40" font-weight="800" letter-spacing="2">BLUVI</text>
+        <text x="120" y="158" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="600" letter-spacing="2">~ trips ~</text>
+        <text x="120" y="175" text-anchor="middle" fill="#38BDF8" font-size="9" font-weight="700" letter-spacing="1.5">DIVING &amp; SNORKELING</text>
+        <text fill="#CBE4F2" font-size="8.5" font-weight="700" letter-spacing="1.4">
+          <textPath href="#bottomArcNav" startOffset="50%" text-anchor="middle">TAKE MEMORIES, LEAVE BUBBLES</textPath>
+        </text>
+      </svg>
+      <div>
+        <span class="brand-title">BLUVI Trips</span>
+        <span class="brand-sub">Diving &amp; Snorkeling</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <button class="nav-btn active" data-cat="all" onclick="showView('home', 'all')">Home</button>
+      <button class="nav-btn" data-cat="daily-diving" onclick="showView('home', 'daily-diving')">Daily Diving</button>
+      <button class="nav-btn" data-cat="snorkeling" onclick="showView('home', 'snorkeling')">Snorkeling Trips</button>
+      <button class="nav-btn" data-cat="courses" onclick="showView('home', 'courses')">Diving Courses</button>
+      <button class="nav-btn" data-cat="specialties" onclick="showView('home', 'specialties')">Specialties</button>
+    </nav>
+  </header>
+
+  <!-- VIEW 1: HOME & ALL PACKAGES -->
+  <main id="homeView">
+    <section class="hero">
+      <div class="hero-inner">
+        <svg width="150" height="150" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bluviGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#00A8B5"/>
+            </linearGradient>
+            <path id="bottomArcHero" d="M 32,132 A 88,88 0 0,0 208,132" />
+          </defs>
+          <circle cx="120" cy="120" r="114" fill="#061E34" stroke="#00A8B5" stroke-width="4"/>
+          <circle cx="120" cy="120" r="105" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.7"/>
+          <path d="M120 30 L125 55 L150 60 L125 65 L120 90 L115 65 L90 60 L115 55 Z" fill="none" stroke="#38BDF8" stroke-width="1.8"/>
+          <path d="M68 86 L152 86 L172 74 L132 74 L122 64 L92 64 L82 74 L68 74 Z" fill="url(#bluviGradHero)"/>
+          <path d="M55 96 Q90 88 120 96 T185 96" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="182" cy="70" r="3" fill="#38BDF8"/>
+          <circle cx="189" cy="60" r="4" fill="#00A8B5"/>
+          <text x="120" y="136" text-anchor="middle" fill="url(#bluviGradHero)" font-size="40" font-weight="800" letter-spacing="2">BLUVI</text>
+          <text x="120" y="158" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="600" letter-spacing="2">~ trips ~</text>
+          <text x="120" y="175" text-anchor="middle" fill="#38BDF8" font-size="9" font-weight="700" letter-spacing="1.5">DIVING &amp; SNORKELING</text>
+          <text fill="#CBE4F2" font-size="8.5" font-weight="700" letter-spacing="1.4">
+            <textPath href="#bottomArcHero" startOffset="50%" text-anchor="middle">TAKE MEMORIES, LEAVE BUBBLES</textPath>
+          </text>
+        </svg>
+        <h1 id="heroTitle">Explore the Red Sea with BLUVI Trips</h1>
+        <p id="heroSubtitle">Daily Diving, Snorkeling Island Adventures &amp; PADI Certified Courses in Hurghada.</p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="filter-bar">
+        <button class="filter-tab active" data-filter="all" onclick="showView('home', 'all')">All Packages (24)</button>
+        <button class="filter-tab" data-filter="daily-diving" onclick="showView('home', 'daily-diving')">Daily Diving (4)</button>
+        <button class="filter-tab" data-filter="snorkeling" onclick="showView('home', 'snorkeling')">Snorkeling Trips (5)</button>
+        <button class="filter-tab" data-filter="courses" onclick="showView('home', 'courses')">Diving Courses (7)</button>
+        <button class="filter-tab" data-filter="specialties" onclick="showView('home', 'specialties')">Specialties (8)</button>
+      </div>
+
+      <div id="tripsGrid" class="trips-grid"></div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-section">
+      <div class="about-grid">
+        <div>
+          <h2 id="aboutTitle" style="font-size:1.85rem; color:#061E34; margin-bottom:0.75rem;">About BLUVI Trips</h2>
+          <p id="aboutText" style="color:#526D82;"></p>
+          <div class="owner-card">
+            <img id="ownerPhoto" src="" alt="BLUVI Team" />
+            <div>
+              <strong id="ownerName" style="display:block; color:#061E34;"></strong>
+              <span id="ownerRole" style="font-size:0.85rem; color:#526D82; display:block;"></span>
+              <a id="mapsLink" href="https://maps.google.com/?q=Hurghada,Red+Sea,Egypt" target="_blank" style="font-size:0.82rem; color:#00A8B5; font-weight:700;">View Hurghada Location on Google Maps →</a>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img id="aboutImage" src="" alt="Red Sea Diving" style="width:100%; border-radius:16px; object-fit:cover; max-height:310px;" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW 2: DEDICATED TRIP DETAILS & LIVE CALCULATOR BOOKING SHEET -->
+  <section id="bookingView" class="container hidden">
+    <button class="filter-tab" style="margin-bottom:1.5rem;" onclick="showView('home', currentFilter)">← Back to All Trips</button>
+    <div class="booking-layout">
+      <div class="detail-box">
+        <img id="detailImg" class="detail-hero-img" src="" alt="Trip Image" />
+        <span id="detailBadge" class="card-badge" style="position:static; display:inline-block; margin-bottom:0.65rem;"></span>
+        <h2 id="detailTitle" style="font-size:1.7rem; color:#061E34; margin-bottom:0.75rem;"></h2>
+        <p id="detailFullDesc" style="color:#526D82; margin-bottom:1.25rem;"></p>
+        <h4 style="color:#061E34; margin-bottom:0.5rem;">What's Included:</h4>
+        <ul id="detailIncludes" style="list-style:none; color:#0F2942; display:grid; gap:0.4rem;"></ul>
+      </div>
+
+      <form class="calc-box" onsubmit="submitBookingWhatsApp(event)">
+        <h3 style="font-size:1.35rem; color:#061E34; margin-bottom:1rem;">Booking &amp; Instant Price Calculator</h3>
+
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="guestName" class="form-control" required placeholder="Enter your full name" />
+        </div>
+
+        <div class="form-group">
+          <label>WhatsApp / Phone Number *</label>
+          <input type="tel" id="guestPhone" class="form-control" required placeholder="+20 10..." />
+        </div>
+
+        <div class="form-group">
+          <label>Preferred Trip Date *</label>
+          <input type="date" id="tripDate" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+          <label>Hotel Name (for Free Hurghada Pickup)</label>
+          <input type="text" id="guestHotel" class="form-control" placeholder="e.g. Long Beach Resort, Hurghada" />
+        </div>
+
+        <div class="form-group">
+          <label>Number of Guests *</label>
+          <input type="number" id="guestCount" class="form-control" min="1" max="30" value="1" oninput="updateBookingCalculator()" required />
+        </div>
+
+        <div class="form-group">
+          <label>Equipment Rental Option</label>
+          <select id="gearAddon" class="form-control" onchange="updateBookingCalculator()">
+            <option value="0">Own Equipment / Included (+0)</option>
+            <option value="15">Full Scuba Equipment Rental (+15 / person)</option>
+          </select>
+        </div>
+
+        <div class="calc-summary">
+          <div class="calc-row">
+            <span>Price per Person:</span>
+            <strong id="calcUnitPrice">0</strong>
+          </div>
+          <div class="calc-row">
+            <span>Number of Guests:</span>
+            <strong id="calcGuestsDisplay">1 Person(s)</strong>
+          </div>
+          <div class="calc-row">
+            <span>Equipment Add-on:</span>
+            <strong id="calcAddonDisplay">0</strong>
+          </div>
+          <div class="calc-total">
+            <span>Total Amount:</span>
+            <span id="calcTotalDisplay" style="color:#00A8B5;">0</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-whatsapp-submit">Confirm Booking via WhatsApp</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Floating WhatsApp & Email Watermarks -->
+  <div class="floating-watermarks">
+    <a id="wmWhatsapp" class="watermark-btn wm-wa" href="https://wa.me/201098586553" target="_blank" rel="noopener">
+      WhatsApp Us
+    </a>
+    <a id="wmEmail" class="watermark-btn wm-mail" href="mailto:Bluvihurghada@gmail.com">
+      Email Us
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <strong>BLUVI Trips — Hurghada, Red Sea, Egypt</strong>
+    <p style="font-size:0.88rem; margin-top:0.35rem;">Take Memories, Leave Bubbles</p>
+    <div class="footer-links">
+      <a id="footerWhatsapp" href="https://wa.me/201098586553" target="_blank">+20 109 858 6553</a>
+      <span>•</span>
+      <a id="footerEmail" href="mailto:Bluvihurghada@gmail.com">Bluvihurghada@gmail.com</a>
+    </div>
+    <p style="font-size:0.78rem; opacity:0.75;">© 2026 BLUVI Trips. All Rights Reserved.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
