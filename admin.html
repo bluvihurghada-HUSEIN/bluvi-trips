@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bluvi Hurghada — Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+  <!-- شاشة دخول -->
+  <div id="lockScreen" class="min-h-screen flex items-center justify-center p-4">
+    <form onsubmit="unlockAdmin(event)" class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-md border border-slate-200 space-y-4">
+      <div class="text-center">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-sky-900 text-cyan-300 mb-2">
+          <i class="fa-solid fa-lock text-lg"></i>
+        </span>
+        <h1 class="font-bold text-xl text-slate-900">Bluvi Admin Access</h1>
+        <p class="text-xs text-slate-500 mt-1">Enter passcode to manage trips, config &amp; export data.js</p>
+      </div>
+      <div>
+        <input id="passcodeInput" type="password" required placeholder="Passcode"
+               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-sky-600">
+        <p id="passError" class="text-xs text-red-600 mt-1.5 hidden">Invalid passcode.</p>
+      </div>
+      <button type="submit" class="w-full py-2.5 rounded-xl bg-sky-900 hover:bg-sky-800 text-white font-semibold text-sm transition-colors">
+        Unlock Dashboard
+      </button>
+    </form>
+  </div>
+
+  <!-- لوحة التحكم -->
+  <div id="adminApp" class="hidden max-w-6xl mx-auto p-4 sm:p-8 space-y-8">
+    <header class="bg-sky-950 text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="font-bold text-xl sm:text-2xl">Bluvi Hurghada — Trips &amp; Site Manager</h1>
+        <p class="text-xs text-sky-200 mt-0.5">Manage excursions, site settings, and policies, then export a complete data.js for GitHub.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" onclick="downloadDataJs()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold">
+          <i class="fa-solid fa-download mr-1.5"></i>Download data.js
+        </button>
+        <button type="button" onclick="copyDataJs()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold">
+          <i class="fa-regular fa-copy mr-1.5"></i>Copy Code
+        </button>
+        <button type="button" onclick="resetDefaults()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
+          Reset
+        </button>
+      </div>
+    </header>
+
+    <!-- إعدادات الموقع والسياسات -->
+    <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="font-bold text-lg text-slate-900">Site Settings &amp; Policies (EN / DE)</h2>
+        <button type="button" onclick="saveSiteConfig()" class="px-4 py-2 rounded-xl bg-sky-900 hover:bg-sky-800 text-white text-xs font-bold">
+          Save Site Settings
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-bold mb-1">WhatsApp Number (digits only)</label>
+          <input id="cfgWhatsapp" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">WhatsApp Display</label>
+          <input id="cfgWhatsappDisplay" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Email Address</label>
+          <input id="cfgEmail" type="email" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-xs font-bold mb-1">Address</label>
+          <input id="cfgAddress" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Hero Title (EN)</label>
+          <input id="cfgHeroTitle" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Hero Title (DE)</label>
+          <input id="cfgHeroTitleDe" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Hero Image URL</label>
+          <input id="cfgHeroBgImage" type="url" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold mb-1">About Story (EN)</label>
+          <textarea id="cfgAboutStory" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">About Story (DE)</label>
+          <textarea id="cfgAboutStoryDe" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold mb-1">Payment Policy (EN)</label>
+          <textarea id="cfgPaymentPolicy" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Payment Policy (DE)</label>
+          <textarea id="cfgPaymentPolicyDe" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold mb-1">Refund Policy (EN)</label>
+          <textarea id="cfgRefundPolicy" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Refund Policy (DE)</label>
+          <textarea id="cfgRefundPolicyDe" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+      </div>
+      <p id="cfgSavedMsg" class="text-xs text-emerald-700 font-semibold hidden">Site settings saved to local session.</p>
+    </section>
+
+    <!-- إضافة أو تعديل رحلة -->
+    <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+      <h2 id="formTitle" class="font-bold text-lg text-slate-900 mb-4">Add New Excursion</h2>
+      <form onsubmit="saveTrip(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input type="hidden" id="editIndex" value="-1">
+
+        <div>
+          <label class="block text-xs font-bold mb-1">ID (slug)</label>
+          <input id="tripId" type="text" required placeholder="speed-paradise"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Category</label>
+          <select id="tripCategory" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+            <option value="speedboats">speedboats (Private Speedboats)</option>
+            <option value="islands">islands (Islands)</option>
+            <option value="sea">sea (Sea &amp; Intro Dive)</option>
+            <option value="safari">safari (Desert &amp; Culture)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold mb-1">Price</label>
+            <input id="tripPrice" type="number" min="1" step="1" required value="50"
+                   class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">Currency</label>
+            <select id="tripCurrency" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+              <option value="€">€</option>
+              <option value="$">$</option>
+              <option value="£">£</option>
+              <option value="EGP">EGP</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Title (EN)</label>
+          <input id="tripTitle" type="text" required placeholder="Private Speedboat to Paradise Island"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Title (DE)</label>
+          <input id="tripTitleDe" type="text" placeholder="Privates Schnellboot zur Paradise Island"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Duration (EN)</label>
+          <input id="tripDuration" type="text" value="Full Day"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-xs font-bold mb-1">Image URL</label>
+          <input id="tripImage" type="url" required placeholder="https://images.unsplash.com/..."
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-xs font-bold mb-1">Short Description (EN)</label>
+          <textarea id="tripShortDesc" rows="2" required
+                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+
+        <div class="md:col-span-3 flex items-center gap-3">
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-900 hover:bg-sky-800 text-white text-sm font-bold">
+            Save Excursion
+          </button>
+          <button type="button" onclick="clearForm()" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-semibold">
+            Clear
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- قائمة الرحلات الحالية -->
+    <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+      <h2 class="font-bold text-lg text-slate-900 mb-4">Current Excursions (<span id="tripCount">0</span>)</h2>
+      <div id="tripsList" class="divide-y divide-slate-100"></div>
+    </section>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const ADMIN_PASSCODE = "saqr12345";
+    const TRIPS_STORAGE_KEY = "bluvi_admin_trips_v1";
+    const CFG_STORAGE_KEY = "bluvi_admin_config_v1";
+    let adminTrips = [];
+    let adminConfig = {};
+
+    function unlockAdmin(e) {
+      e.preventDefault();
+      const val = document.getElementById("passcodeInput").value;
+      if (val === ADMIN_PASSCODE) {
+        document.getElementById("lockScreen").classList.add("hidden");
+        document.getElementById("adminApp").classList.remove("hidden");
+        loadAll();
+      } else {
+        document.getElementById("passError").classList.remove("hidden");
+      }
+    }
+
+    function loadAll() {
+      const baseCfg = typeof DEFAULT_SITE_CONFIG !== "undefined" ? DEFAULT_SITE_CONFIG : {};
+      const savedCfg = localStorage.getItem(CFG_STORAGE_KEY);
+      if (savedCfg) {
+        try {
+          adminConfig = { ...baseCfg, ...JSON.parse(savedCfg) };
+        } catch {
+          adminConfig = { ...baseCfg };
+        }
+      } else {
+        adminConfig = { ...baseCfg };
+      }
+      fillConfigForm();
+
+      const savedTrips = localStorage.getItem(TRIPS_STORAGE_KEY);
+      if (savedTrips) {
+        try {
+          adminTrips = JSON.parse(savedTrips);
+        } catch {
+          adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+        }
+      } else {
+        adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+      }
+      renderAdminList();
+    }
+
+    function fillConfigForm() {
+      document.getElementById("cfgWhatsapp").value = adminConfig.whatsappNumber || "";
+      document.getElementById("cfgWhatsappDisplay").value = adminConfig.whatsappDisplay || "";
+      document.getElementById("cfgEmail").value = adminConfig.email || "";
+      document.getElementById("cfgAddress").value = adminConfig.address || "";
+      document.getElementById("cfgHeroTitle").value = adminConfig.heroTitle || "";
+      document.getElementById("cfgHeroTitleDe").value = adminConfig.heroTitleDe || "";
+      document.getElementById("cfgHeroBgImage").value = adminConfig.heroBgImage || "";
+      document.getElementById("cfgAboutStory").value = adminConfig.aboutStory || "";
+      document.getElementById("cfgAboutStoryDe").value = adminConfig.aboutStoryDe || "";
+      document.getElementById("cfgPaymentPolicy").value = adminConfig.paymentPolicy || "";
+      document.getElementById("cfgPaymentPolicyDe").value = adminConfig.paymentPolicyDe || "";
+      document.getElementById("cfgRefundPolicy").value = adminConfig.refundPolicy || "";
+      document.getElementById("cfgRefundPolicyDe").value = adminConfig.refundPolicyDe || "";
+    }
+
+    function saveSiteConfig() {
+      adminConfig = {
+        ...adminConfig,
+        whatsappNumber: document.getElementById("cfgWhatsapp").value.trim(),
+        whatsappDisplay: document.getElementById("cfgWhatsappDisplay").value.trim(),
+        email: document.getElementById("cfgEmail").value.trim(),
+        address: document.getElementById("cfgAddress").value.trim(),
+        heroTitle: document.getElementById("cfgHeroTitle").value.trim(),
+        heroTitleDe: document.getElementById("cfgHeroTitleDe").value.trim(),
+        heroBgImage: document.getElementById("cfgHeroBgImage").value.trim(),
+        aboutStory: document.getElementById("cfgAboutStory").value.trim(),
+        aboutStoryDe: document.getElementById("cfgAboutStoryDe").value.trim(),
+        paymentPolicy: document.getElementById("cfgPaymentPolicy").value.trim(),
+        paymentPolicyDe: document.getElementById("cfgPaymentPolicyDe").value.trim(),
+        refundPolicy: document.getElementById("cfgRefundPolicy").value.trim(),
+        refundPolicyDe: document.getElementById("cfgRefundPolicyDe").value.trim()
+      };
+      localStorage.setItem(CFG_STORAGE_KEY, JSON.stringify(adminConfig));
+      const msg = document.getElementById("cfgSavedMsg");
+      msg.classList.remove("hidden");
+      setTimeout(() => msg.classList.add("hidden"), 2500);
+    }
+
+    function persistTrips() {
+      localStorage.setItem(TRIPS_STORAGE_KEY, JSON.stringify(adminTrips));
+      renderAdminList();
+    }
+
+    function categoryLabels(cat) {
+      const map = {
+        speedboats: ["Private Speedboats", "Private Schnellboote"],
+        islands: ["Islands", "Inseln"],
+        sea: ["Sea & Intro Dive", "Meer & Intro Dive"],
+        safari: ["Desert & Culture", "Wüste & Kultur"]
+      };
+      return map[cat] || ["Excursions", "Ausflüge"];
+    }
+
+    function saveTrip(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("editIndex").value, 10);
+      const cat = document.getElementById("tripCategory").value;
+      const [catEn, catDe] = categoryLabels(cat);
+      const title = document.getElementById("tripTitle").value.trim();
+      const titleDe = document.getElementById("tripTitleDe").value.trim() || title;
+      const shortDesc = document.getElementById("tripShortDesc").value.trim();
+
+      const item = {
+        id: document.getElementById("tripId").value.trim(),
+        category: cat,
+        categoryLabel: catEn,
+        categoryLabelDe: catDe,
+        title,
+        titleDe,
+        duration: document.getElementById("tripDuration").value.trim() || "Full Day",
+        durationDe: document.getElementById("tripDuration").value.trim() || "Ganztägig",
+        price: Number(document.getElementById("tripPrice").value) || 0,
+        currency: document.getElementById("tripCurrency").value,
+        image: document.getElementById("tripImage").value.trim(),
+        shortDesc,
+        shortDescDe: shortDesc,
+        fullDesc: shortDesc,
+        fullDescDe: shortDesc,
+        includes: ["Hotel Transfers in Hurghada", "Professional Crew & Support"],
+        includesDe: ["Hoteltransfer in Hurghada", "Professionelle Betreuung"]
+      };
+
+      if (idx >= 0 && idx < adminTrips.length) {
+        adminTrips[idx] = { ...adminTrips[idx], ...item };
+      } else {
+        adminTrips.unshift(item);
+      }
+
+      persistTrips();
+      clearForm();
+    }
+
+    function editTrip(index) {
+      const t = adminTrips[index];
+      if (!t) return;
+      document.getElementById("editIndex").value = index;
+      document.getElementById("formTitle").textContent = `Edit Excursion: ${t.title}`;
+      document.getElementById("tripId").value = t.id;
+      document.getElementById("tripCategory").value = t.category;
+      document.getElementById("tripPrice").value = t.price;
+      document.getElementById("tripCurrency").value = t.currency;
+      document.getElementById("tripTitle").value = t.title;
+      document.getElementById("tripTitleDe").value = t.titleDe || "";
+      document.getElementById("tripDuration").value = t.duration || "Full Day";
+      document.getElementById("tripImage").value = t.image;
+      document.getElementById("tripShortDesc").value = t.shortDesc;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteTrip(index) {
+      adminTrips.splice(index, 1);
+      persistTrips();
+    }
+
+    function clearForm() {
+      document.getElementById("editIndex").value = "-1";
+      document.getElementById("formTitle").textContent = "Add New Excursion";
+      document.getElementById("tripId").value = "";
+      document.getElementById("tripTitle").value = "";
+      document.getElementById("tripTitleDe").value = "";
+      document.getElementById("tripPrice").value = "50";
+      document.getElementById("tripImage").value = "";
+      document.getElementById("tripShortDesc").value = "";
+    }
+
+    function resetDefaults() {
+      localStorage.removeItem(TRIPS_STORAGE_KEY);
+      localStorage.removeItem(CFG_STORAGE_KEY);
+      adminConfig = { ...(typeof DEFAULT_SITE_CONFIG !== "undefined" ? DEFAULT_SITE_CONFIG : {}) };
+      adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+      fillConfigForm();
+      renderAdminList();
+    }
+
+    function buildDataJsOutput() {
+      const configStr = JSON.stringify(adminConfig, null, 2);
+      const tripsStr = JSON.stringify(adminTrips, null, 2);
+      return `const DEFAULT_SITE_CONFIG = ${configStr};\n\nconst BLUVI_TRIPS = ${tripsStr};\n`;
+    }
+
+    function downloadDataJs() {
+      const blob = new Blob([buildDataJsOutput()], { type: "application/javascript;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.js";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyDataJs() {
+      navigator.clipboard?.writeText(buildDataJsOutput());
+      alert("Copied updated data.js to clipboard.");
+    }
+
+    function renderAdminList() {
+      document.getElementById("tripCount").textContent = adminTrips.length;
+      const container = document.getElementById("tripsList");
+      container.innerHTML = adminTrips.map((t, i) => `
+        <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <img src="${t.image}" alt="${t.title}" class="w-14 h-14 rounded-xl object-cover bg-slate-100">
+            <div>
+              <p class="font-bold text-sm text-slate-900">${t.title}</p>
+              <p class="text-xs text-slate-500">${t.categoryLabel} • ${t.price} ${t.currency} • ID: ${t.id}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="editTrip(${i})" class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-xs font-bold">
+              Edit
+            </button>
+            <button type="button" onclick="deleteTrip(${i})" class="px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold">
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  </script>
+</body>
+</html>
