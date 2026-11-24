@@ -1,3 +1,15 @@
+```javascript
+const DEFAULT_SITE_CONFIG = {
+  brandName: "Bluvi",
+  tagline: "FEEL THE BLUE VIBE",
+  phone: "+20 10 98586553",
+  whatsapp: "201098586553",
+  email: "Bluvihurghada@gmail.com",
+  address: "El-Bahr St, Hurghada 1, Red Sea Governorate 84511",
+  heroVideoUrl: "",
+  heroImageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1600&q=85"
+};
+
 const DEFAULT_TRIPS_DATA = [
   {
     id: "speed-orange-bay",
@@ -643,11 +655,3 @@ const DEFAULT_TRIPS_DATA = [
     ]
   }
 ];
-```[cite: 16]
-
-### خطوات التنفيذ الآن:
-1. انسخ مصفوفة `DEFAULT_TRIPS_DATA` أعلاه وضعها في ملف `data.js` في مستودع `bluvi-trips` على GitHub (مع التأكد من وجود `DEFAULT_SITE_CONFIG` أيضاً إذا كان `app.js` يعتمد عليه).
-2. ارفع التعديل (`Commit`) وانتظر حتى يصبح الـ Deployment جاهزاً (`Ready`) على Vercel.
-3. افتح الموقع واعمل **Ctrl + Shift + R**، ولو لاحظت أن المتصفح ما زال يعرض بيانات قديمة مخزنة في `localStorage`، افتح لوحة الأدمن (`Admin Dashboard`) واضغط **Reset All Data to Factory Defaults** ليقرأ الـ **16 رحلة** الجديدة مباشرة.
-
-هل فيه أي رحلة إضافية أخرى تريد إضافتها على هذه القائمة قبل أن ترفع `data.js`؟
