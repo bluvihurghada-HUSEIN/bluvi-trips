@@ -33,9 +33,12 @@
     <header class="bg-sky-950 text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 class="font-bold text-xl sm:text-2xl">Bluvi Hurghada — Trips &amp; Site Manager</h1>
-        <p class="text-xs text-sky-200 mt-0.5">Manage excursions, site settings, and policies, then export a complete data.js for GitHub.</p>
+        <p class="text-xs text-sky-200 mt-0.5">Manage excursions, site settings, and policies, then publish directly to GitHub or export data.js.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <button type="button" id="publishGithubBtn" onclick="publishToGitHub()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold">
+          <i class="fa-brands fa-github mr-1.5"></i>Publish to GitHub
+        </button>
         <button type="button" onclick="downloadDataJs()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold">
           <i class="fa-solid fa-download mr-1.5"></i>Download data.js
         </button>
@@ -47,6 +50,41 @@
         </button>
       </div>
     </header>
+
+    <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="font-bold text-lg text-slate-900">Direct GitHub Publish Settings</h2>
+          <p class="text-xs text-slate-500">Updates <code class="bg-slate-100 px-1.5 py-0.5 rounded">data.js</code> directly via GitHub API and triggers Vercel deploy automatically.</p>
+        </div>
+        <button type="button" onclick="saveGhSettings(true)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">
+          Save GitHub Settings
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-bold mb-1">GitHub Owner</label>
+          <input id="ghOwner" type="text" placeholder="bluvihurghada-HUSEIN" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Repository Name</label>
+          <input id="ghRepo" type="text" placeholder="bluvi-trips" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Branch &amp; File Path</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="ghBranch" type="text" placeholder="main" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 text-sm">
+            <input id="ghPath" type="text" placeholder="data.js" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">GitHub Token (Contents: R/W)</label>
+          <input id="ghToken" type="password" placeholder="github_pat_..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+      </div>
+      <p id="ghStatusMsg" class="text-xs font-semibold hidden"></p>
+    </section>
 
     <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex items-center justify-between gap-2">
@@ -227,6 +265,7 @@
     const ADMIN_PASSCODE = "saqr12345";
     const TRIPS_STORAGE_KEY = "bluvi_hurghada_trips_v9";
     const CFG_STORAGE_KEY = "bluvi_hurghada_config_v9";
+    const GH_STORAGE_KEY = "bluvi_hurghada_gh_v1";
     let adminTrips = [];
     let adminConfig = {};
 
@@ -248,7 +287,125 @@
       }
     }
 
+    function loadGhSettings() {
+      const defaults = {
+        owner: "bluvihurghada-HUSEIN",
+        repo: "bluvi-trips",
+        branch: "main",
+        path: "data.js",
+        token: ""
+      };
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(GH_STORAGE_KEY) || "{}");
+      } catch {
+        saved = {};
+      }
+      const cfg = { ...defaults, ...saved };
+      document.getElementById("ghOwner").value = cfg.owner;
+      document.getElementById("ghRepo").value = cfg.repo;
+      document.getElementById("ghBranch").value = cfg.branch;
+      document.getElementById("ghPath").value = cfg.path;
+      document.getElementById("ghToken").value = cfg.token;
+      return cfg;
+    }
+
+    function saveGhSettings(showNotice = false) {
+      const cfg = {
+        owner: document.getElementById("ghOwner").value.trim() || "bluvihurghada-HUSEIN",
+        repo: document.getElementById("ghRepo").value.trim() || "bluvi-trips",
+        branch: document.getElementById("ghBranch").value.trim() || "main",
+        path: document.getElementById("ghPath").value.trim() || "data.js",
+        token: document.getElementById("ghToken").value.trim()
+      };
+      localStorage.setItem(GH_STORAGE_KEY, JSON.stringify(cfg));
+      if (showNotice) {
+        setGhStatus("GitHub settings saved locally in this browser.", "text-emerald-700");
+      }
+      return cfg;
+    }
+
+    function setGhStatus(message, colorClass = "text-slate-700") {
+      const el = document.getElementById("ghStatusMsg");
+      if (!el) return;
+      el.className = `text-xs font-semibold ${colorClass}`;
+      el.textContent = message;
+      el.classList.remove("hidden");
+    }
+
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    async function publishToGitHub() {
+      const gh = saveGhSettings(false);
+      if (!gh.token) {
+        setGhStatus("Please enter your GitHub Personal Access Token first.", "text-red-600");
+        document.getElementById("ghToken").focus();
+        return;
+      }
+
+      const btn = document.getElementById("publishGithubBtn");
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Publishing...`;
+      setGhStatus("Fetching current file info from GitHub...", "text-sky-700");
+
+      const encodedPath = gh.path.split("/").map(encodeURIComponent).join("/");
+      const apiUrl = `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${encodedPath}`;
+      const headers = {
+        "Authorization": `Bearer ${gh.token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        let sha = undefined;
+        const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(gh.branch)}`, { headers });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        } else if (getRes.status !== 404) {
+          const errData = await getRes.json().catch(() => ({}));
+          throw new Error(errData.message || `Failed to read ${gh.path} (${getRes.status})`);
+        }
+
+        setGhStatus("Pushing updated data.js to GitHub...", "text-sky-700");
+        const payload = {
+          message: `Update ${gh.path} via Bluvi Admin Dashboard`,
+          content: utf8ToBase64(buildDataJsOutput()),
+          branch: gh.branch
+        };
+        if (sha) payload.sha = sha;
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(payload)
+        });
+
+        const putData = await putRes.json().catch(() => ({}));
+        if (!putRes.ok) {
+          throw new Error(putData.message || `GitHub update failed (${putRes.status})`);
+        }
+
+        setGhStatus("Published to GitHub successfully. Vercel will update the live site automatically.", "text-emerald-700");
+      } catch (err) {
+        setGhStatus(`Publish failed: ${err.message}`, "text-red-600");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
+
     function loadAll() {
+      loadGhSettings();
+
       const baseCfg = typeof DEFAULT_SITE_CONFIG !== "undefined" ? DEFAULT_SITE_CONFIG : {};
       const savedCfg = localStorage.getItem(CFG_STORAGE_KEY);
       if (savedCfg) {
