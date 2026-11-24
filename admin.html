@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
 
-  <!-- شاشة دخول -->
   <div id="lockScreen" class="min-h-screen flex items-center justify-center p-4">
     <form onsubmit="unlockAdmin(event)" class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-md border border-slate-200 space-y-4">
       <div class="text-center">
@@ -30,7 +29,6 @@
     </form>
   </div>
 
-  <!-- لوحة التحكم -->
   <div id="adminApp" class="hidden max-w-6xl mx-auto p-4 sm:p-8 space-y-8">
     <header class="bg-sky-950 text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -50,7 +48,6 @@
       </div>
     </header>
 
-    <!-- إعدادات الموقع والسياسات -->
     <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex items-center justify-between gap-2">
         <h2 class="font-bold text-lg text-slate-900">Site Settings &amp; Policies (EN / DE)</h2>
@@ -118,10 +115,9 @@
           <textarea id="cfgRefundPolicyDe" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
         </div>
       </div>
-      <p id="cfgSavedMsg" class="text-xs text-emerald-700 font-semibold hidden">Site settings saved to local session.</p>
+      <p id="cfgSavedMsg" class="text-xs text-emerald-700 font-semibold hidden">Site settings saved.</p>
     </section>
 
-    <!-- إضافة أو تعديل رحلة -->
     <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
       <h2 id="formTitle" class="font-bold text-lg text-slate-900 mb-4">Add New Excursion</h2>
       <form onsubmit="saveTrip(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -178,6 +174,25 @@
                  class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
         </div>
 
+        <div>
+          <label class="block text-xs font-bold mb-1">Badge</label>
+          <input id="tripBadge" type="text" value="Featured Trip"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Location</label>
+          <input id="tripLocation" type="text" value="Hurghada"
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="flex items-end pb-1">
+          <label class="inline-flex items-center gap-2 text-xs font-bold cursor-pointer">
+            <input id="tripIsPrivate" type="checkbox" class="rounded border-slate-300">
+            <span>Private Boat Charter (Fixed boat price)</span>
+          </label>
+        </div>
+
         <div class="md:col-span-3">
           <label class="block text-xs font-bold mb-1">Image URL</label>
           <input id="tripImage" type="url" required placeholder="https://images.unsplash.com/..."
@@ -201,7 +216,6 @@
       </form>
     </section>
 
-    <!-- قائمة الرحلات الحالية -->
     <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
       <h2 class="font-bold text-lg text-slate-900 mb-4">Current Excursions (<span id="tripCount">0</span>)</h2>
       <div id="tripsList" class="divide-y divide-slate-100"></div>
@@ -211,10 +225,16 @@
   <script src="data.js"></script>
   <script>
     const ADMIN_PASSCODE = "saqr12345";
-    const TRIPS_STORAGE_KEY = "bluvi_admin_trips_v1";
-    const CFG_STORAGE_KEY = "bluvi_admin_config_v1";
+    const TRIPS_STORAGE_KEY = "bluvi_hurghada_trips_v9";
+    const CFG_STORAGE_KEY = "bluvi_hurghada_config_v9";
     let adminTrips = [];
     let adminConfig = {};
+
+    function getBaseTrips() {
+      if (typeof DEFAULT_TRIPS_DATA !== "undefined") return JSON.parse(JSON.stringify(DEFAULT_TRIPS_DATA));
+      if (typeof BLUVI_TRIPS !== "undefined") return JSON.parse(JSON.stringify(BLUVI_TRIPS));
+      return [];
+    }
 
     function unlockAdmin(e) {
       e.preventDefault();
@@ -247,10 +267,10 @@
         try {
           adminTrips = JSON.parse(savedTrips);
         } catch {
-          adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+          adminTrips = getBaseTrips();
         }
       } else {
-        adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+        adminTrips = getBaseTrips();
       }
       renderAdminList();
     }
@@ -299,43 +319,47 @@
       renderAdminList();
     }
 
-    function categoryLabels(cat) {
-      const map = {
-        speedboats: ["Private Speedboats", "Private Schnellboote"],
-        islands: ["Islands", "Inseln"],
-        sea: ["Sea & Intro Dive", "Meer & Intro Dive"],
-        safari: ["Desert & Culture", "Wüste & Kultur"]
-      };
-      return map[cat] || ["Excursions", "Ausflüge"];
-    }
-
     function saveTrip(e) {
       e.preventDefault();
       const idx = parseInt(document.getElementById("editIndex").value, 10);
       const cat = document.getElementById("tripCategory").value;
-      const [catEn, catDe] = categoryLabels(cat);
       const title = document.getElementById("tripTitle").value.trim();
       const titleDe = document.getElementById("tripTitleDe").value.trim() || title;
       const shortDesc = document.getElementById("tripShortDesc").value.trim();
+      const isPrivateBoat = document.getElementById("tripIsPrivate").checked;
+      const priceVal = Number(document.getElementById("tripPrice").value) || 0;
 
       const item = {
         id: document.getElementById("tripId").value.trim(),
         category: cat,
-        categoryLabel: catEn,
-        categoryLabelDe: catDe,
+        badge: document.getElementById("tripBadge").value.trim() || "Bluvi Trip",
+        location: document.getElementById("tripLocation").value.trim() || "Hurghada",
         title,
         titleDe,
         duration: document.getElementById("tripDuration").value.trim() || "Full Day",
         durationDe: document.getElementById("tripDuration").value.trim() || "Ganztägig",
-        price: Number(document.getElementById("tripPrice").value) || 0,
+        pricePerPerson: priceVal,
         currency: document.getElementById("tripCurrency").value,
+        unitLabel: isPrivateBoat ? "speedboat (up to 6 guests)" : "person",
+        unitLabelDe: isPrivateBoat ? "Schnellboot (bis zu 6 Gäste)" : "Person",
+        isPrivateBoat,
+        maxGuests: isPrivateBoat ? 6 : 30,
         image: document.getElementById("tripImage").value.trim(),
         shortDesc,
         shortDescDe: shortDesc,
         fullDesc: shortDesc,
         fullDescDe: shortDesc,
-        includes: ["Hotel Transfers in Hurghada", "Professional Crew & Support"],
-        includesDe: ["Hoteltransfer in Hurghada", "Professionelle Betreuung"]
+        highlights: [
+          "Private hotel pickup & drop-off in Hurghada",
+          "Experienced local crew & full safety support"
+        ],
+        included: [
+          "Hurghada Hotel Transfers",
+          "Professional Crew & Equipment"
+        ],
+        requirements: [
+          "Free cancellation up to 24 hours before departure"
+        ]
       };
 
       if (idx >= 0 && idx < adminTrips.length) {
@@ -355,11 +379,14 @@
       document.getElementById("formTitle").textContent = `Edit Excursion: ${t.title}`;
       document.getElementById("tripId").value = t.id;
       document.getElementById("tripCategory").value = t.category;
-      document.getElementById("tripPrice").value = t.price;
-      document.getElementById("tripCurrency").value = t.currency;
+      document.getElementById("tripPrice").value = t.pricePerPerson ?? t.price ?? 50;
+      document.getElementById("tripCurrency").value = t.currency || "€";
       document.getElementById("tripTitle").value = t.title;
       document.getElementById("tripTitleDe").value = t.titleDe || "";
       document.getElementById("tripDuration").value = t.duration || "Full Day";
+      document.getElementById("tripBadge").value = t.badge || "Bluvi Trip";
+      document.getElementById("tripLocation").value = t.location || "Hurghada";
+      document.getElementById("tripIsPrivate").checked = Boolean(t.isPrivateBoat);
       document.getElementById("tripImage").value = t.image;
       document.getElementById("tripShortDesc").value = t.shortDesc;
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -377,6 +404,9 @@
       document.getElementById("tripTitle").value = "";
       document.getElementById("tripTitleDe").value = "";
       document.getElementById("tripPrice").value = "50";
+      document.getElementById("tripBadge").value = "Bluvi Trip";
+      document.getElementById("tripLocation").value = "Hurghada";
+      document.getElementById("tripIsPrivate").checked = false;
       document.getElementById("tripImage").value = "";
       document.getElementById("tripShortDesc").value = "";
     }
@@ -385,15 +415,18 @@
       localStorage.removeItem(TRIPS_STORAGE_KEY);
       localStorage.removeItem(CFG_STORAGE_KEY);
       adminConfig = { ...(typeof DEFAULT_SITE_CONFIG !== "undefined" ? DEFAULT_SITE_CONFIG : {}) };
-      adminTrips = [...(typeof BLUVI_TRIPS !== "undefined" ? BLUVI_TRIPS : [])];
+      adminTrips = getBaseTrips();
       fillConfigForm();
       renderAdminList();
     }
 
     function buildDataJsOutput() {
-      const configStr = JSON.stringify(adminConfig, null, 2);
-      const tripsStr = JSON.stringify(adminTrips, null, 2);
-      return `const DEFAULT_SITE_CONFIG = ${configStr};\n\nconst BLUVI_TRIPS = ${tripsStr};\n`;
+      const uiTextStr = typeof UI_TEXT !== "undefined" ? JSON.stringify(UI_TEXT, null, 2) : "{}";
+      return [
+        `const DEFAULT_SITE_CONFIG = ${JSON.stringify(adminConfig, null, 2)};`,
+        `const UI_TEXT = ${uiTextStr};`,
+        `const DEFAULT_TRIPS_DATA = ${JSON.stringify(adminTrips, null, 2)};`
+      ].join("\n\n");
     }
 
     function downloadDataJs() {
@@ -414,25 +447,28 @@
     function renderAdminList() {
       document.getElementById("tripCount").textContent = adminTrips.length;
       const container = document.getElementById("tripsList");
-      container.innerHTML = adminTrips.map((t, i) => `
-        <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <img src="${t.image}" alt="${t.title}" class="w-14 h-14 rounded-xl object-cover bg-slate-100">
-            <div>
-              <p class="font-bold text-sm text-slate-900">${t.title}</p>
-              <p class="text-xs text-slate-500">${t.categoryLabel} • ${t.price} ${t.currency} • ID: ${t.id}</p>
+      container.innerHTML = adminTrips.map((t, i) => {
+        const priceVal = t.pricePerPerson ?? t.price ?? 0;
+        return `
+          <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <img src="${t.image}" alt="${t.title}" class="w-14 h-14 rounded-xl object-cover bg-slate-100">
+              <div>
+                <p class="font-bold text-sm text-slate-900">${t.title}</p>
+                <p class="text-xs text-slate-500">${t.category} • ${t.currency}${priceVal} • ID: ${t.id}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="editTrip(${i})" class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-xs font-bold">
+                Edit
+              </button>
+              <button type="button" onclick="deleteTrip(${i})" class="px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold">
+                Delete
+              </button>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="editTrip(${i})" class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-xs font-bold">
-              Edit
-            </button>
-            <button type="button" onclick="deleteTrip(${i})" class="px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold">
-              Delete
-            </button>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
   </script>
 </body>
