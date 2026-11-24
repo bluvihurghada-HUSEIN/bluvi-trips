@@ -654,4 +654,4 @@ const DEFAULT_TRIPS_DATA = [
       "Bring passport/ID, comfortable walking shoes, hat, and water"
     ]
   }
-];
+};
