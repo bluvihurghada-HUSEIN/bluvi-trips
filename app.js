@@ -232,9 +232,7 @@ function navigateTo(route, tripId = null) {
 }
 
 function openTripDetail(tripId) {
-  const trip = TRIPS_DATA.find(item => item.id === tripId);
-  const maxAllowed = trip ? (trip.maxGuests || (trip.isPrivateBoat ? 6 : 30)) : 30;
-  currentState.booking = { guests: Math.min(2, maxAllowed) };
+  currentState.booking = { guests: 2 };
   navigateTo("trip", tripId);
 }
 
@@ -314,6 +312,7 @@ function createTripCardHTML(trip) {
   const meta = getCategoryMeta(trip.category);
   const loc = getTripLocalized(trip);
   const hasImage = trip.image && trip.image.trim() !== "";
+  const price = trip.pricePerPerson ?? trip.price ?? 0;
 
   return `
     <article onclick="openTripDetail('${trip.id}')"
@@ -334,14 +333,14 @@ function createTripCardHTML(trip) {
             <i class="fa-solid ${meta.icon}"></i> ${meta.label}
           </span>
           <span class="absolute top-3.5 right-3.5 bg-aqua-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">
-            ${trip.badge}
+            ${trip.badge || "Bluvi"}
           </span>
           <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between text-xs text-white/95 font-medium">
             <span class="inline-flex items-center gap-1.5">
               <i class="fa-regular fa-clock text-aqua-400"></i> ${loc.duration}
             </span>
             <span class="inline-flex items-center gap-1.5">
-              <i class="fa-solid fa-location-dot text-aqua-400"></i> ${trip.location}
+              <i class="fa-solid fa-location-dot text-aqua-400"></i> ${trip.location || "Hurghada"}
             </span>
           </div>
         </div>
@@ -360,7 +359,7 @@ function createTripCardHTML(trip) {
         <div>
           <span class="text-xs text-slate-400 block">${trip.isPrivateBoat ? t("privateCharterLabel") : t("priceLabel")}</span>
           <div class="flex items-baseline gap-1">
-            <span class="font-display font-extrabold text-2xl text-ocean-900">${trip.currency}${trip.pricePerPerson}</span>
+            <span class="font-display font-extrabold text-2xl text-ocean-900">${trip.currency}${price}</span>
             <span class="text-xs text-slate-500 font-medium">/ ${loc.unitLabel}</span>
           </div>
         </div>
@@ -785,10 +784,7 @@ function renderTripDetailPage(tripId) {
   const defaultDate = tomorrow.toISOString().split("T")[0];
   const maxGuests = trip.maxGuests || (trip.isPrivateBoat ? 6 : 30);
   const hasImage = trip.image && trip.image.trim() !== "";
-
-  if (currentState.booking.guests > maxGuests) {
-    currentState.booking.guests = maxGuests;
-  }
+  const price = trip.pricePerPerson ?? trip.price ?? 0;
 
   return `
     <div class="bg-white border-b border-slate-200/80">
@@ -816,12 +812,12 @@ function renderTripDetailPage(tripId) {
             `}
             <div class="absolute inset-0 bg-gradient-to-t from-ocean-950/80 via-transparent to-transparent"></div>
             <div class="absolute bottom-5 left-5 right-5 flex flex-wrap items-center gap-2.5">
-              <span class="bg-aqua-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow">${trip.badge}</span>
+              <span class="bg-aqua-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow">${trip.badge || "Bluvi"}</span>
               <span class="bg-ocean-900/85 backdrop-blur-md text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/15">
                 <i class="fa-regular fa-clock text-aqua-400 mr-1"></i> ${loc.duration}
               </span>
               <span class="bg-ocean-900/85 backdrop-blur-md text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/15">
-                <i class="fa-solid fa-location-dot text-aqua-400 mr-1"></i> ${trip.location}
+                <i class="fa-solid fa-location-dot text-aqua-400 mr-1"></i> ${trip.location || "Hurghada"}
               </span>
             </div>
           </div>
@@ -847,7 +843,7 @@ function renderTripDetailPage(tripId) {
             <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
               <h2 class="font-display font-bold text-lg text-ocean-900">${t("includedTitle")}</h2>
               <div class="space-y-2.5">
-                ${(trip.included || []).map(inc => `
+                ${(trip.included || trip.includes || []).map(inc => `
                   <div class="flex items-center gap-2.5 bg-sand-50 px-3.5 py-2.5 rounded-xl border border-slate-200/60 text-xs sm:text-sm font-medium text-ocean-900">
                     <i class="fa-solid fa-check text-emerald-500"></i>
                     <span>${inc}</span>
@@ -873,7 +869,6 @@ function renderTripDetailPage(tripId) {
           </div>
         </div>
 
-        <!-- عداد الحجز وحساب السعر الفوري -->
         <div class="lg:col-span-5 lg:sticky lg:top-24">
           <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
             <div class="bg-ocean-900 text-white p-6 sm:p-7">
@@ -881,7 +876,7 @@ function renderTripDetailPage(tripId) {
                 <div>
                   <span class="text-xs font-bold uppercase tracking-wider text-aqua-400">${t("bookingHeader")}</span>
                   <div class="flex items-baseline gap-1.5 mt-1">
-                    <span class="font-display font-extrabold text-3xl text-white">${trip.currency}${trip.pricePerPerson}</span>
+                    <span class="font-display font-extrabold text-3xl text-white">${trip.currency}${price}</span>
                     <span class="text-sm text-sky-200/85">/ ${loc.unitLabel}</span>
                   </div>
                 </div>
@@ -940,7 +935,7 @@ function renderTripDetailPage(tripId) {
                     ${trip.isPrivateBoat ? `${t("guestsPrivate")} ${maxGuests})` : t("guestsRegular")}
                   </span>
                   <span id="counter-rate-hint" class="text-xs text-slate-500">
-                    ${trip.isPrivateBoat ? `${trip.currency}${trip.pricePerPerson} / ${loc.unitLabel}` : `${trip.currency}${trip.pricePerPerson} × ${currentState.booking.guests}`}
+                    ${trip.isPrivateBoat ? `${trip.currency}${price} / ${loc.unitLabel}` : `${trip.currency}${price} × ${currentState.booking.guests}`}
                   </span>
                 </div>
                 <div class="flex items-center gap-3">
@@ -996,6 +991,7 @@ function updateGuestCount(delta, tripId) {
   if (!trip) return;
 
   const loc = getTripLocalized(trip);
+  const price = trip.pricePerPerson ?? trip.price ?? 0;
   const maxGuests = trip.maxGuests || (trip.isPrivateBoat ? 6 : 30);
   const newCount = Math.min(maxGuests, Math.max(1, currentState.booking.guests + delta));
   currentState.booking.guests = newCount;
@@ -1006,8 +1002,8 @@ function updateGuestCount(delta, tripId) {
   const rateHint = document.getElementById("counter-rate-hint");
   if (rateHint) {
     rateHint.textContent = trip.isPrivateBoat
-      ? `${trip.currency}${trip.pricePerPerson} / ${loc.unitLabel}`
-      : `${trip.currency}${trip.pricePerPerson} × ${newCount}`;
+      ? `${trip.currency}${price} / ${loc.unitLabel}`
+      : `${trip.currency}${price} × ${newCount}`;
   }
 
   recalculateTotal(tripId);
@@ -1015,9 +1011,10 @@ function updateGuestCount(delta, tripId) {
 
 function calculateTripPricing(tripId) {
   const trip = TRIPS_DATA.find(item => item.id === tripId);
+  const unitPrice = trip.pricePerPerson ?? trip.price ?? 0;
   const guests = currentState.booking.guests;
-  const grandTotal = trip.isPrivateBoat ? trip.pricePerPerson : trip.pricePerPerson * guests;
-  return { trip, guests, grandTotal };
+  const grandTotal = trip.isPrivateBoat ? unitPrice : unitPrice * guests;
+  return { trip, unitPrice, guests, grandTotal };
 }
 
 function recalculateTotal(tripId) {
@@ -1027,8 +1024,8 @@ function recalculateTotal(tripId) {
   const calc = calculateTripPricing(tripId);
   const curr = calc.trip.currency;
   const baseFormula = calc.trip.isPrivateBoat
-    ? `${t("privateCharterLabel")} (${calc.guests} ${currentState.lang === "de" ? "Gäste" : "guests"})`
-    : `${curr}${calc.trip.pricePerPerson} × ${calc.guests}`;
+    ? `${t("privateCharterLabel")} (${calc.guests})`
+    : `${curr}${calc.unitPrice} × ${calc.guests}`;
 
   breakdownEl.innerHTML = `
     <div class="flex items-center justify-between text-xs text-sky-200/85">
