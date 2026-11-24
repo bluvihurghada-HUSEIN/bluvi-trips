@@ -1,4 +1,3 @@
-```javascript
 const DEFAULT_SITE_CONFIG = {
   brandName: "Bluvi",
   tagline: "FEEL THE BLUE VIBE",
@@ -652,5 +651,6 @@ const DEFAULT_TRIPS_DATA = [
     ],
     requirements: [
       "Bring passport/ID, comfortable walking shoes, hat, and water"
+    ]
   }
-};
+];
